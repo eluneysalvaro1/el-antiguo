@@ -1,5 +1,5 @@
 <?php
-
+include_once 'conector/BaseDatos';
 class servicio
 {
     private $idServicio;
