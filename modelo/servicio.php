@@ -128,7 +128,7 @@ class servicio
 
         $idServicio = $this->getIdServicio();
         $nombre = $this->getNombre();
-        $servicio = $this->getServicio();
+        $precio = $this->getPrecio();
 
         $sql = "UPDATE servicio
                 SET nombre = '$nombre', precio = '$precio'  

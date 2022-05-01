@@ -31,7 +31,7 @@ class peluquero
         $this->setEmail($datos['email']);
         $this->setApellido($datos['apellido']);
         $this->setTelefono($datos['telefono']);
-        $this->setProcentajePago($datos['porcentajePago']);
+        $this->setPorcentajePago($datos['porcentajePago']);
     }
 
     //Getters y Setters

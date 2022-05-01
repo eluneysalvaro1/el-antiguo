@@ -19,7 +19,7 @@ class cliente
     // Metodos Setters
     public function setear($datos)
     {
-        $this->setIdPeluquero($datos['idCliente']);
+        $this->setIdCliente($datos['idCliente']);
         $this->setNombre($datos['nombre']);
         $this->setApellido($datos['apellido']);
         $this->setTelefono($datos['telefono']);
