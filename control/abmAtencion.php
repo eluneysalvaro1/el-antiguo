@@ -116,7 +116,7 @@ class abmPeluquero
             if (isset($param['idAtencion']))
                 $where .= ' and idAtencion = ' . "'" . $param['idAtencion'] . "'";
             if (isset($param['idCliente']))
-                $where .= ' and idCliente =' . $param['idCliente'] . "'";
+                $where .= ' and idCliente =' . "'". $param['idCliente'] . "'";
             if (isset($param['idPeluquero']))
                 $where .= ' and idPeluquero =' ."'". $param['idPeluquero'] . "'";
             if (isset($param['idServicio']))
