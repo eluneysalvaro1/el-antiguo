@@ -24,7 +24,18 @@ class atencion
         $this->cortePagadoPeluquero = false;
         $this->mensajeOperacion = '';
     }
+    public function setear($datos)
+    {
+        $this->setIdAtencion($datos['idAtencion']);
+        $this->setObjCliente($datos['objCliente']);
+        $this->setObjPeluquero($datos['objPeluquero']);
+        $this->setObjServicio($datos['objServicio']);
 
+        $this->setFechaAtencion($datos['fechaAtencion']);
+        $this->setHoraAtencion($datos['horaAtencion']);
+        $this->setMetodoPago($datos['metodoPago']);
+        $this->setCortePagadoPeluquero($datos['cortePagadoPeluquero']);
+    }
 
     //Setters and Getters
     public function getIdAtencion(){
@@ -88,13 +99,26 @@ class atencion
       public function cargar(){
         $resp = false;
         $base = new BaseDatos();
-        $sql = "SELECT * FROM atencion WHERE idAtencion = " . $this->getIdAtencion();
+        $idAtencion=$this->getIdAtencion();
+        $sql = "SELECT * FROM atencion WHERE idAtencion = '$idAtencion'";
         if ($base->Iniciar()) {
             $res = $base->Ejecutar($sql);
             if ($res > -1) {
                 if ($res > 0) {
                     $row = $base->Registro();
-                    $this->setear(['idCliente' => $row['idCliente'], 'nombre' => $row['nombre'],'telefono' => $row['telefono'] ,'apellido' => $row['apellido']]);
+                    $objCliente=new cliente;
+                    $objPeluquero= new peluquero;
+                    $objServicio= new servicio;
+                    $objCliente->setIdCliente($row['idCliente']);
+                    $objCliente->cargar();
+                    $objPeluquero->setIdPeluquero($row['idPeluquero']);
+                    $objPeluquero->cargar();
+                    $objServicio->setIdServicio($row['idServicio']);
+                    $objServicio->cargar();
+                    $this->setear(['idAtencion' => $row['idAtencion'], 'objPeluquero' => $objPeluquero,
+                    'objCliente' => $objCliente ,'objServicio' => $objServicio, 
+                    'fechaAtencion'=>$row['fechaAtencion'], 'horaAtencion'=>$row['horaAtencion'],
+                    'metodoPago'=>['metodoPago'],'cortePagadoPeluquero'=>$row['cortePagadoPeluquero']]);
                 }
             }
         } else {
@@ -108,7 +132,7 @@ class atencion
 
         $arreglo = array();
         $base = new BaseDatos();
-        $sql = "SELECT * FROM cliente ";
+        $sql = "SELECT * FROM atencion ";
         if ($parametro != "") {
             $sql = $sql . 'WHERE ' . $parametro;
         }
@@ -116,8 +140,20 @@ class atencion
         if ($res > -1) {
             if ($res >= 0) {
                 while ($row = $base->Registro()) {
-                    $obj = new cliente();
-                    $obj->setear(['idCliente' => $row['idCliente'], 'nombre' => $row['nombre'],'telefono' => $row['telefono'] ,'apellido' => $row['apellido']]);
+                    $objCliente=new cliente;
+                    $objPeluquero= new peluquero;
+                    $objServicio= new servicio;
+                    $objCliente->setIdCliente($row['idCliente']);
+                    $objCliente->cargar();
+                    $objPeluquero->setIdPeluquero($row['idPeluquero']);
+                    $objPeluquero->cargar();
+                    $objServicio->setIdServicio($row['idServicio']);
+                    $objServicio->cargar();
+                    $obj = new atencion();
+                    $obj->setear(['idAtencion' => $row['idAtencion'], 'objPeluquero' => $objPeluquero,
+                    'objCliente' => $objCliente ,'objServicio' => $objServicio, 
+                    'fechaAtencion'=>$row['fechaAtencion'], 'horaAtencion'=>$row['horaAtencion'],
+                    'metodoPago'=>['metodoPago'],'cortePagadoPeluquero'=>$row['cortePagadoPeluquero']]);
                     array_push($arreglo, $obj);
                 }
             }
@@ -131,17 +167,28 @@ class atencion
     {
         $base = new BaseDatos();
         $resp = false;
+        $idAtencion=$this->getIdAtencion();
+        $objCliente=$this->getObjCliente();
+        $idCliente=$objCliente->getIdCliente();
+        $objPeluquero=$this->getObjPeluquero();
+        $idPeluquero=$objPeluquero->getIdPeluquero();
+        $objServicio=$this->getObjServicio();
+        $idServicio=$objServicio->getIdServicio();
 
-        $nombre = $this->getNombre();
-        $apellido = $this->getApellido();
-        $telefono = $this->getTelefono();
+        $fechaAtencion = $this->getFechaAtencion();
+        $horaAtencion = $this->getHoraAtencion();
+        $metodoPago = $this->getMetodoPago();
+        $cortePagadoPeluquero=$this->getCortePagadoPeluquero();
         
-        $sql = "INSERT INTO cliente(nombre, apellido, telefono )
-                VALUES ('$nombre', '$apellido', '$telefono')";
+        $sql = "INSERT INTO atencion(idPeluquero, 
+        idCliente, idServicio, fechaAtencion, horaAtencion, metodoPago, 
+        cortePagadoPeluquero)
+        VALUES ('$idPeluquero', '$idCliente', '$idServicio', '$fechaAtencion', 
+        '$horaAtencion', '$metodoPago' , '$cortePagadoPeluquero')";
 
         if ($base->Iniciar()) {
             if ($elid = $base->Ejecutar($sql)) {
-                $this->setIdCliente($elid);
+                $this->setIdAtencion($elid);
                 $resp = true;
             } else {
                 $this->setMensajeOperacion("cliente->insertar: " . $base->getError());
@@ -158,15 +205,30 @@ class atencion
     {
         $resp = false;
         $base = new BaseDatos();
+        $idAtencion=$this->getIdAtencion();
+        
+        $objCliente=$this->getObjCliente();
+        $idCliente=$objCliente->getIdCliente();
+        
+        $objPeluquero=$this->getObjPeluquero();
+        $idPeluquero=$objPeluquero->getIdPeluquero();
+        
+        $objServicio=$this->getObjServicio();
+        $idServicio=$objServicio->getIdServicio();
 
-        $idCliente = $this->getIdCliente();
-        $nombre = $this->getNombre();
-        $apellido = $this->getApellido();
-        $telefono = $this->getTelefono();
+        $fechaAtencion = $this->getFechaAtencion();
+        $horaAtencion = $this->getHoraAtencion();
+        $metodoPago = $this->getMetodoPago();
+        $cortePagadoPeluquero=$this->getCortePagadoPeluquero();
+      
 
-        $sql = "UPDATE cliente
-                SET nombre = '$nombre', apellido = '$apellido' , telefono = '$telefono'  
-                WHERE idCliente = '$idCliente'";
+        $sql = "UPDATE atencion
+                SET idAtencion = '$idAtencion', idPeluquero = '$idPeluquero' ,
+                 idCliente = '$idCliente' , idServicio = '$idServicio', 
+                 horaAtencion = '$horaAtencion', 
+                fechaAtencion = '$fechaAtencion', metodoPago = '$metodoPago', 
+                cortePagadoPeluquero = '$cortePagadoPeluquero'
+                WHERE idAtencion = '$idAtencion'";
                 echo $sql;
         if ($base->Iniciar()) {
             if ($base->Ejecutar($sql)) {
@@ -185,10 +247,10 @@ class atencion
         $base = new BaseDatos();
         $resp = false;
 
-        $idCliente = $this->getIdCliente();
+        $idAtencion = $this->getIdAtencion();
 
         if ($base->Iniciar()) {
-            $sql = "DELETE FROM cliente WHERE idCliente = '$idCliente'";
+            $sql = "DELETE FROM atencion WHERE idAtencion = '$idAtencion'";
             if ($base->Ejecutar($sql)) {
                 $resp =  true;
             } else {
